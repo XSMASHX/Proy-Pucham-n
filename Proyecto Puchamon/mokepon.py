@@ -17,21 +17,21 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Puchamón")
 
 # Cargar imagenes
-start_screen_background = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/img/imagen prueba.png')
-start_batalla = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/img/batallapoke.png')
-start_personajesmenú = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/img/menú personajes.png')
-Gabs = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Gabs.png')
-Mark = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Mark.png')
-Lavs = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Lavs.png')
-Kevo = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Kevo.png')
-Anth = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Anth.png')
-Jopa = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Jopa.png')
-Carmin = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Carmin.png')
-Drenaz = pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Drenaz.png')
+start_screen_background = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/img/imagen prueba.png')
+start_batalla = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/img/batallapoke.png')
+start_personajesmenú = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/img/menú personajes.png')
+Gabs = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Gabs.png')
+Mark = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Mark.png')
+Lavs = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Lavs.png')
+Kevo = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Kevo.png')
+Anth = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Anth.png')
+Jopa = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Jopa.png')
+Carmin = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Carmin.png')
+Drenaz = pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/Drenaz.png')
 frames_ataque_enemigo = [
-    pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke1.png'),
-    pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke2.png'),
-    pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke3.png')
+    pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke1.png'),
+    pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke2.png'),
+    pygame.image.load('Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke3.png')
 ]
 
 
@@ -62,7 +62,7 @@ def cargar_gif(ruta_gif):
     return frames
 
 # Cargar GIFs de transición
-gif_entrada = cargar_gif('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/animaciones/POKEBOL TRANSICIÓN ENTRADA.gif')
+gif_entrada = cargar_gif('Proy-Pucham-n-main/Proyecto Puchamon/animaciones/POKEBOL TRANSICIÓN ENTRADA.gif')
 
 
 # Función para cambiar la música
@@ -73,7 +73,7 @@ def cambiar_musica(ruta_musica, repetir=-1, volumen=0.5):
     pygame.mixer.music.play(repetir)  # Comienza la nueva música
 
 
-cambiar_musica('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/música/Gaming Music by Alexi Action (No Copyright Music) 8 Bit Era.MP3')
+cambiar_musica('Proy-Pucham-n-main/Proyecto Puchamon/música/Gaming Music by Alexi Action (No Copyright Music) 8 Bit Era.MP3')
 en_batalla = False
 
 
@@ -285,7 +285,7 @@ def mostrar_barra_salud(nombre_jugador, hp, x, y):
 
 # Función de batalla
 def batalla(jugador, enemigo):
-    cambiar_musica('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/música/Vs. Gladion [GBA Style] – Pokémon Sun & Moon.MP3')
+    cambiar_musica('Proy-Pucham-n-main/Proyecto Puchamon/música/Vs. Gladion [GBA Style] – Pokémon Sun & Moon.MP3')
     en_batalla = True 
     
     global personaje_seleccionado
