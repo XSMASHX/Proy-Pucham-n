@@ -1,5 +1,6 @@
 import pygame
 import random
+from PIL import Image
 
 # Inicializamos Pygame
 pygame.init()
@@ -32,8 +33,48 @@ frames_ataque_enemigo = [
     pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke2.png'),
     pygame.image.load('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/Personajes/ataque poke3.png')
 ]
+
+
 start_screen_background = pygame.transform.scale(start_screen_background, (screen_width, screen_height))
 
+
+# Función para mostrar una animación de GIF con fondo, repeticiones y transición al siguiente GIF
+def mostrar_animacion_gif(frames, fondo, x, y, delay=50, repeticiones=1):
+    for _ in range(repeticiones):  # Controla cuántas veces se repite la animación
+        for frame in frames:
+            screen.blit(fondo, (0, 0))  # Dibuja el fondo antes de cada frame de animación
+            screen.blit(frame, (x, y))  # Dibuja el frame con transparencia sobre el fondo
+            pygame.display.flip()
+            pygame.time.delay(delay)
+
+# Función para cargar un GIF y devolver una lista de frames para Pygame
+def cargar_gif(ruta_gif):
+    gif = Image.open(ruta_gif)
+    frames = []
+    try:
+        while True:
+            frame = gif.copy().convert("RGBA")  # Convertir a RGBA para transparencia
+            pygame_image = pygame.image.fromstring(frame.tobytes(), frame.size, frame.mode)
+            frames.append(pygame_image)
+            gif.seek(gif.tell() + 1)
+    except EOFError:
+        pass  # Termina cuando no hay más frames
+    return frames
+
+# Cargar GIFs de transición
+gif_entrada = cargar_gif('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/animaciones/POKEBOL TRANSICIÓN ENTRADA.gif')
+
+
+# Función para cambiar la música
+def cambiar_musica(ruta_musica, repetir=-1, volumen=0.5):
+    pygame.mixer.music.stop()  # Detiene la música actual
+    pygame.mixer.music.load(ruta_musica)  # Carga la nueva música
+    pygame.mixer.music.set_volume(volumen)  # Ajusta el volumen
+    pygame.mixer.music.play(repetir)  # Comienza la nueva música
+
+
+cambiar_musica('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/música/Gaming Music by Alexi Action (No Copyright Music) 8 Bit Era.MP3')
+en_batalla = False
 
 
 # Definimos los colores
@@ -48,9 +89,6 @@ font = pygame.font.Font(None, 36)
 # Salud inicial de los personajes
 MAX_HEALTH = 100
 
-
-# Nueva variable para almacenar el personaje seleccionado
-personaje_seleccionado = "Gabs"  # Puedes cambiarlo según el personaje que elija el jugador
 
 # Diccionario de imágenes de personajes
 imagenes_personajes = {
@@ -98,9 +136,10 @@ ataques = {
     "Gruñir": {"naturaleza": "Ágil", "daño": 0, "descripcion": "Intimida al enemigo y hace que sus ataques hagan 10% menos daño por los dos turnos siguientes"},
     "Motivación": {"naturaleza": "Firme", "daño": -10, "descripcion": "Cura 10 puntos de vida al atacante, 50% de probabilidad de curar 15 si la naturaleza es compatible"},
     "Facto": {"naturaleza": "Equilibrado", "daño": 10, "descripcion": "Quita 10 de vida al enemigo, 15 si la naturaleza es compatible"},
-    "Beso": {"naturaleza": "Ágil", "daño": 5, "descripcion": "Quita 5 puntos de vida y cura 5 puntos al atacante, hay 50% de probabilidad de que quite 10 y cure 10 si la naturaleza es compatible"}
+    "Beso": {"naturaleza": "Ágil", "daño": 5, "descripcion": "Quita 10 puntos de vida y quita 15 puntos al atacante si la naturaleza es compatible"}
 }
 
+ataques_con_animacion = ["Llamazo", "Manazo", "Botellazo", "Facto"]
 
 # Función para mostrar el texto en pantalla
 def draw_text(text, font, color, surface, x, y):
@@ -126,12 +165,12 @@ def calcular_daño(ataque, nombre_atacante, nombre_defensor, es_jugador=True):
     
     # Aplicar "Caliente" para el jugador
     if es_jugador and turnos_boost > 0:
-        base_daño += base_daño * jugador_boost_daño  # Aumentar el daño en un 40%
+        base_daño += int(base_daño * jugador_boost_daño)  # Aumentar el daño en un 40%
         turnos_boost -= 1  # Reducir el contador de turnos
 
     # Aplicar "Caliente" para el enemigo
     elif not es_jugador and turnos_boost_enemigo > 0:
-        base_daño += base_daño * enemigo_boost_daño  # Aumentar el daño en un 40%
+        base_daño += int(base_daño * enemigo_boost_daño)  # Aumentar el daño en un 40%
         turnos_boost_enemigo -= 1  # Reducir el contador de turnos
 
     # Ataque Caliente (no causa daño directo pero activa el boost)
@@ -246,10 +285,13 @@ def mostrar_barra_salud(nombre_jugador, hp, x, y):
 
 # Función de batalla
 def batalla(jugador, enemigo):
+    cambiar_musica('Proy-Pucham-n-main/Proy-Pucham-n-main/Proyecto Puchamon/música/Vs. Gladion [GBA Style] – Pokémon Sun & Moon.MP3')
+    en_batalla = True 
+    
     global personaje_seleccionado
-    global enemigo_invalido  # Usar la variable global enemigo_invalido
-    global jugador_invalido  # Usar la variable global jugador_invalido
-    global jugador_hp, enemigo_hp  # Para que la curación se aplique correctamente
+    global enemigo_invalido
+    global jugador_invalido
+    global jugador_hp, enemigo_hp
 
     jugador_hp = MAX_HEALTH
     enemigo_hp = MAX_HEALTH
@@ -257,16 +299,16 @@ def batalla(jugador, enemigo):
     turno_jugador = True
     batalla_terminada = False
     mensaje = ""
-
+    mostrar_animacion_gif(gif_entrada, start_personajesmenú, x=0, y=0, repeticiones=1)
     while not batalla_terminada:
-        screen.blit(start_batalla, (0, 0))
-
-        # Mostrar la imagen del personaje seleccionado
-        screen.blit(imagenes_personajes[jugador], (60, 250))  # Ajusta la posición según necesites
-        screen.blit(imagenes_personajes[enemigo], (750, 250))  # Posición del enemigo
         
-        #barras de salud
-        mostrar_barra_salud(jugador, jugador_hp, 20, 60)   # Ajusta la posición según necesites
+        screen.blit(start_batalla, (0, 0))
+        # Mostrar la imagen del personaje seleccionado
+        screen.blit(imagenes_personajes[jugador], (60, 250))
+        screen.blit(imagenes_personajes[enemigo], (750, 250))
+        
+        # Barras de salud
+        mostrar_barra_salud(jugador, jugador_hp, 20, 60)
         mostrar_barra_salud(enemigo, enemigo_hp, 800, 60)
         
         # Mostrar salud de ambos personajes
@@ -276,13 +318,12 @@ def batalla(jugador, enemigo):
         if turno_jugador:
             if jugador_invalido:
                 mensaje = f'{jugador} está invalidado y no puede atacar este turno.'
-                # Limpiar el área del mensaje antes de dibujar el texto
-                pygame.draw.rect(screen, WHITE, (100, screen_height - 100, 760, 80))  # Limpiar el área
-                draw_text_wrapped(mensaje, font, BLACK, screen, 100, screen_height - 200, 760)
+                pygame.draw.rect(screen, WHITE, (100, screen_height - 100, 760, 80))
+                draw_text_wrapped(mensaje, font, BLACK, screen, 100, screen_height - 100, 760)
                 pygame.display.flip()
-                pygame.time.wait(2000)  # Espera 2 segundos para mostrar el mensaje
-                jugador_invalido = False  # Restablecemos el estado de invalidez
-                turno_jugador = False  # Cambiamos el turno al enemigo
+                pygame.time.wait(2000)
+                jugador_invalido = False
+                turno_jugador = False
             else:
                 ataques_jugador = characters[jugador]["ataques"]
                 mostrar_ataques(ataques_jugador, screen_width, screen_height - 100)
@@ -299,71 +340,68 @@ def batalla(jugador, enemigo):
                             ataque_seleccionado = ataques_jugador[ataque_index]
                             
                             daño, mensaje = calcular_daño(ataque_seleccionado, jugador, enemigo, es_jugador=True)
-                            animar_ataque(frames_ataque_enemigo, 60, 250)
                             
-                            # Aplicar curación o daño según el ataque
+                            if ataque_seleccionado in ataques_con_animacion and daño > 0:
+                                animar_ataque(frames_ataque_enemigo, 750, 250)
+                            
                             if ataque_seleccionado == "Motivación":
-                                jugador_hp = min(jugador_hp - daño, 100)  # Aplicar curación hasta un máximo de 100
+                                jugador_hp = min(jugador_hp - daño, 100)
                             else:
                                 enemigo_hp -= daño
-                                enemigo_hp = max(0, enemigo_hp)  # Asegurarse de que no baje de 0
+                                enemigo_hp = max(0, enemigo_hp)
 
                             mensaje = f'{jugador} usó {ataque_seleccionado} contra {enemigo}. {mensaje}'
-                            # Limpiar el área del mensaje antes de dibujar el nuevo
                             pygame.draw.rect(screen, WHITE, (100, screen_height - 100, 760, 80))
                             draw_text_wrapped(mensaje, font, BLACK, screen, 100, screen_height - 100, 760)
                             pygame.display.flip()
 
-                            pygame.time.wait(2000)  # Esperar 2 segundos para mostrar el mensaje del ataque
+                            pygame.time.wait(2000)
 
-                            turno_jugador = False  # Cambia de turno
+                            turno_jugador = False
 
                             if enemigo_hp <= 0:
-                                enemigo_hp = 0  # Mostrar la vida en cero antes de terminar
+                                enemigo_hp = 0
                                 pygame.display.flip()
-                                pygame.time.wait(2500)  # Esperar antes de finalizar la batalla
+                                pygame.time.wait(2500)
                                 batalla_terminada = True
                                 mensaje = f'{jugador} ganó la batalla!'
                             
-                            pygame.time.wait(500)  # Pequeña pausa antes de continuar
+                            pygame.time.wait(500)
         else:
-            if not enemigo_invalido:  # Si el enemigo no está invalidado
+            if not enemigo_invalido:
                 ataque_enemigo = random.choice(characters[enemigo]["ataques"])
                 daño, mensaje = calcular_daño(ataque_enemigo, enemigo, jugador, es_jugador=False)
-                animar_ataque(frames_ataque_enemigo, 750, 250)
+                
+                if ataque_enemigo in ataques_con_animacion and daño > 0:
+                    animar_ataque(frames_ataque_enemigo, 60, 250)
                 
                 if ataque_enemigo == "Motivación":
-                    enemigo_hp = min(enemigo_hp - daño, 100)  # Aplicar curación hasta un máximo de 100
+                    enemigo_hp = min(enemigo_hp - daño, 100)
                 else:
                     jugador_hp -= daño
-                    jugador_hp = max(0, jugador_hp)  # Asegurarse de que no baje de 0
+                    jugador_hp = max(0, jugador_hp)
 
-                if ataque_enemigo == "Inválido" and random.random() < 0.5:  # 50% de probabilidad de acertar
-                    jugador_invalido = True  # El jugador queda invalidado
+                if ataque_enemigo == "Inválido" and random.random() < 0.5:
+                    jugador_invalido = True
                     mensaje += " El enemigo te ha invalidado y atacará de nuevo."
-                    # Limpiar el área del mensaje antes de dibujar el nuevo
                     pygame.draw.rect(screen, WHITE, (100, screen_height - 100, 760, 80))
                     draw_text_wrapped(mensaje, font, BLACK, screen, 100, screen_height - 100, 760)
                     pygame.display.flip()
-                    pygame.time.wait(2000)  # Espera para mostrar el mensaje
+                    pygame.time.wait(2000)
 
-                    # El enemigo vuelve a atacar de inmediato si invalida al jugador
                     ataque_enemigo = random.choice(characters[enemigo]["ataques"])
                     daño, mensaje = calcular_daño(ataque_enemigo, enemigo, jugador, es_jugador=False)
                     if ataque_enemigo != "Motivación":
                         jugador_hp -= daño
-                        jugador_hp = max(0, jugador_hp)  # Asegurarse de que no baje de 0
+                        jugador_hp = max(0, jugador_hp)
                 else:
                     mensaje = f'{enemigo} usó {ataque_enemigo} contra {jugador}. {mensaje}'
 
-                # Limpiar el área del mensaje antes de dibujar el nuevo
                 pygame.draw.rect(screen, WHITE, (100, screen_height - 100, 760, 80))
                 draw_text_wrapped(mensaje, font, BLACK, screen, 100, screen_height - 100, 760)
                 pygame.display.flip()
 
                 pygame.time.wait(2500)
-
-                # Limpiar solo el área del mensaje
                 pygame.draw.rect(screen, WHITE, (100, screen_height - 100, 760, 80))
                 pygame.display.flip()
                 pygame.time.wait(500)
@@ -373,27 +411,22 @@ def batalla(jugador, enemigo):
                     batalla_terminada = True
                     mensaje = f'{enemigo} ganó la batalla!'
             else:
-                enemigo_invalido = False  # Restablecer el estado de invalidez para el siguiente turno
+                enemigo_invalido = False
             turno_jugador = True
+            en_batalla = False
 
         pygame.display.flip()
         clock.tick(60)
+
 
 
 # Función para seleccionar personaje
 def seleccionar_personaje():
     selected = False
     personaje_seleccionado = None
+    mostrar_animacion_gif(gif_entrada, start_screen_background, x=0, y=0, repeticiones=1)
     while not selected:
         screen.blit(start_personajesmenú, (0, 0))
-        draw_text('Selecciona tu personaje:', font, BLACK, screen, 20, 20)
-        
-        # Mostrar lista de personajes
-        y = 100
-        for i, personaje in enumerate(characters.keys()):
-            draw_text(f'{i + 1}. {personaje}', font, BLACK, screen, 50, y)
-            y += 40
-        
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -441,7 +474,6 @@ def main():
     running = True
     while running:
         screen.blit(start_screen_background, (0, 0))
-        draw_text("Presiona Enter para iniciar", font, BLACK, screen, 370, 350)
         pygame.display.flip()
 
         for event in pygame.event.get():
